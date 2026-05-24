@@ -1,7 +1,7 @@
 /**
  * background.js — Service Worker for Badge Updates
  *
- * Chrome's "always-on" background script for Tab Out.
+ * Chrome's "always-on" background script for TabHub.
  * Its only job: keep the toolbar badge showing the current open tab count.
  *
  * Since we no longer have a server, we query chrome.tabs directly.
@@ -59,6 +59,21 @@ async function updateBadge() {
     chrome.action.setBadgeText({ text: '' });
   }
 }
+
+// ─── Open dashboard on icon click ─────────────────────────────────────────────
+
+chrome.action.onClicked.addListener(async () => {
+  const extensionId = chrome.runtime.id;
+  const dashboardUrl = `chrome-extension://${extensionId}/index.html`;
+
+  const tabs = await chrome.tabs.query({ url: dashboardUrl });
+  if (tabs.length > 0) {
+    await chrome.tabs.update(tabs[0].id, { active: true });
+    await chrome.windows.update(tabs[0].windowId, { focused: true });
+  } else {
+    await chrome.tabs.create({ url: dashboardUrl });
+  }
+});
 
 // ─── Event listeners ──────────────────────────────────────────────────────────
 

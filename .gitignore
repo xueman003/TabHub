@@ -2,6 +2,7 @@ node_modules/
 *.log
 *.db
 .DS_Store
+.dbg/
 docs/superpowers/
 
 # Personal config (landing page patterns, etc.) — never push to GitHub

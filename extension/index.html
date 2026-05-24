@@ -1,37 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tab Out</title>
-
-  <!-- Google Fonts: Newsreader (for headings/numbers) + DM Sans (for body text) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  <title>TabHub</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
 
-
-
-  <!-- ================================================================
-       HEADER — greeting on the left
-       ================================================================ -->
   <header>
     <div class="header-left">
-      <!-- "Good afternoon" — written by getGreeting() in app.js -->
       <h1 id="greeting"></h1>
-      <!-- "Friday, April 4, 2026" — written by getDateDisplay() in app.js -->
       <div class="date" id="dateDisplay"></div>
+    </div>
+    <div class="header-right">
+      <button class="save-session-btn" data-action="save-session">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" /></svg>
+        保存会话
+      </button>
+      <div class="view-toggle" id="viewToggle">
+        <button class="view-toggle-btn active" data-view="domain">按域名</button>
+        <button class="view-toggle-btn" data-view="window">按窗口</button>
+      </div>
     </div>
   </header>
 
-  <!-- ================================================================
-       TAB OUT DUPES BANNER — appears when you have extra Tab Out tabs open
-       Hidden by default; app.js shows it when dupeTabOutCount > 1
-       ================================================================ -->
+  <div class="quick-links" id="quickLinks"></div>
+
   <div class="tab-cleanup-banner" id="tabOutDupeBanner" style="display:none">
     <div class="tab-cleanup-left">
       <div class="tab-cleanup-icon">
@@ -40,96 +36,82 @@
         </svg>
       </div>
       <div class="tab-cleanup-text">
-        You have <strong id="tabOutDupeCount"></strong> Tab Out tabs open. Keep just this one?
+        你有 <strong id="tabOutDupeCount"></strong> 个 TabHub 页面处于打开状态，只保留当前这个？
       </div>
     </div>
-    <button class="tab-cleanup-btn" data-action="close-tabout-dupes">Close extras</button>
+    <button class="tab-cleanup-btn" data-action="close-tabout-dupes">关闭多余的</button>
   </div>
 
-  <!-- ================================================================
-       MAIN CONTENT AREA — two-column layout
-       Left: open tabs (domain/mission cards)
-       Right: saved for later checklist
-       The right column only renders when it has items (JS controls this)
-       ================================================================ -->
   <div class="dashboard-columns" id="dashboardColumns">
 
-    <!-- LEFT COLUMN: Open tabs -->
     <div class="active-section" id="openTabsSection" style="display:none">
       <div class="section-header">
-        <h2 id="openTabsSectionTitle">Right now</h2>
+        <h2 id="openTabsSectionTitle">打开的标签页</h2>
         <div class="section-line"></div>
         <div class="section-count" id="openTabsSectionCount"></div>
       </div>
       <div class="missions" id="openTabsMissions"></div>
     </div>
 
-    <!-- RIGHT COLUMN: Saved for Later checklist -->
-    <div class="deferred-column" id="deferredColumn" style="display:none">
+    <div class="deferred-column" id="deferredColumn">
       <div class="section-header">
-        <h2>Saved for later</h2>
+        <h2>稍后阅读</h2>
         <div class="section-line"></div>
         <div class="section-count" id="deferredCount"></div>
       </div>
-
-      <!-- Active checklist items — injected by renderDeferredList() in app.js -->
       <div class="deferred-list" id="deferredList"></div>
-
-      <!-- Empty state — shown when no active deferred tabs -->
-      <div class="deferred-empty" id="deferredEmpty" style="display:none">
-        Nothing saved. Living in the moment.
-      </div>
-
-      <!-- Archive section — collapsed by default -->
-      <div class="deferred-archive" id="deferredArchive" style="display:none">
-        <button class="archive-toggle" id="archiveToggle">
-          <svg class="archive-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
-          Archive
-          <span class="archive-count" id="archiveCount"></span>
-        </button>
-        <div class="archive-body" id="archiveBody" style="display:none">
-          <input type="text" class="archive-search" id="archiveSearch" placeholder="Search archived tabs...">
-          <div class="archive-list" id="archiveList"></div>
-        </div>
+      <div class="deferred-empty" id="deferredEmpty">
+        暂无保存的内容。
       </div>
     </div>
 
-  </div><!-- end .dashboard-columns -->
+    <div class="frequent-column" id="frequentColumn">
+      <div class="section-header">
+        <h2>近期常用</h2>
+        <div class="section-line"></div>
+        <div class="section-count" id="frequentCount"></div>
+      </div>
+      <div class="frequent-list" id="frequentList"></div>
+      <div class="frequent-empty" id="frequentEmpty">
+        暂无近期常用的页面。
+      </div>
+    </div>
 
-  <!-- ================================================================
-       FOOTER — global stats + refresh control
-       ================================================================ -->
+  </div>
+
+  <div class="sessions-section" id="sessionsSection" style="display:none">
+    <div class="section-header">
+      <h2>已保存的会话</h2>
+      <div class="section-line"></div>
+      <div class="section-count" id="sessionsCount"></div>
+    </div>
+    <div class="sessions-grid" id="sessionsList"></div>
+    <div class="sessions-empty" id="sessionsEmpty" style="display:none">
+      暂无保存的会话。
+    </div>
+  </div>
+
   <footer>
     <div class="footer-stats">
       <div class="stat">
         <div class="stat-num" id="statTabs">—</div>
-        <div class="stat-label">Open tabs</div>
+        <div class="stat-label">打开的标签</div>
       </div>
     </div>
     <div class="last-refresh">
-      <span style="color: var(--muted); font-size: 11px;"><a href="https://github.com/zarazhangrui/tab-out" target="_top" style="color: var(--muted); text-decoration: underline; text-underline-offset: 2px;">Tab Out</a> by <a href="https://x.com/zarazhangrui" target="_top" style="color: var(--muted); text-decoration: underline; text-underline-offset: 2px;">Zara</a></span>
+      <span>TabHub</span>
     </div>
   </footer>
 
-</div><!-- end .container -->
+</div>
 
-<!-- ================================================================
-     TOAST — floats above everything, used for action confirmations
-     Hidden by default via CSS (opacity:0, translateY)
-     ================================================================ -->
 <div class="toast" id="toast">
-  <!-- Checkmark circle icon (Heroicons outline) -->
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
   </svg>
   <span id="toastText"></span>
 </div>
 
-<!-- Personal config (gitignored) — defines LOCAL_LANDING_PAGE_PATTERNS etc. -->
-<!-- If the file doesn't exist, that's fine — app.js uses sensible defaults. -->
-<script src="config.local.js" onerror="/* no personal config, that's fine */"></script>
-
-<!-- Main dashboard logic — loads last so the DOM is ready -->
 <script src="app.js"></script>
 </body>
 </html>

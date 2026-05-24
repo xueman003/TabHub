@@ -1,91 +1,84 @@
-# Tab Out
+# TabHub
 
-**Keep tabs on your tabs.**
+TabHub 是一个面向个人使用的 Chrome 标签页管理插件。它不会替换新标签页，而是通过点击浏览器工具栏里的插件图标打开一个管理面板，帮助你整理当前打开的标签页、暂存稍后阅读内容、维护近期常用网页，并保存/恢复工作会话。
 
-Tab Out is a Chrome extension that replaces your new tab page with a dashboard of everything you have open. Tabs are grouped by domain, with homepages (Gmail, X, LinkedIn, etc.) pulled into their own group. Close tabs with a satisfying swoosh + confetti.
+所有数据都保存在本地 `chrome.storage.local` 中，不需要账号，不需要服务器。
 
-No server. No account. No external API calls. Just a Chrome extension.
+## 功能
 
----
+- **标签页总览**：查看当前打开的所有标签页，支持按域名或按窗口分组。
+- **一键跳转/关闭**：点击具体标签可跳转，支持关闭单个标签、关闭整组标签、关闭重复标签。
+- **稍后阅读**：把暂时不想处理的网页保存到待读列表。
+- **近期常用**：维护近期可能反复使用的网页集合。
+- **拖拽添加**：从“打开的标签页”区域直接拖拽具体网页到“稍后阅读”或“近期常用”。
+- **会话管理**：一键保存当前打开的标签页为会话，之后可以在新窗口中恢复。
+- **快捷入口**：自定义常用网站入口。
+- **中文界面**：面向中文使用者优化文案和交互。
 
-## Install with a coding agent
+## 安装
 
-Send your coding agent (Claude Code, Codex, etc.) this repo and say **"install this"**:
+1. 下载或克隆这个仓库到本地。
+2. 打开 Chrome，进入 `chrome://extensions`。
+3. 打开右上角的“开发者模式”。
+4. 点击“加载已解压的扩展程序”。
+5. 选择本项目里的 `extension/` 文件夹。
+6. 点击 Chrome 工具栏中的 TabHub 图标打开管理面板。
 
-```
-https://github.com/zarazhangrui/tab-out
-```
+## 本地预览
 
-The agent will walk you through it. Takes about 1 minute.
-
----
-
-## Features
-
-- **See all your tabs at a glance** on a clean grid, grouped by domain
-- **Homepages group** pulls Gmail inbox, X home, YouTube, LinkedIn, GitHub homepages into one card
-- **Close tabs with style** with swoosh sound + confetti burst
-- **Duplicate detection** flags when you have the same page open twice, with one-click cleanup
-- **Click any tab to jump to it** across windows, no new tab opened
-- **Save for later** bookmark tabs to a checklist before closing them
-- **Localhost grouping** shows port numbers next to each tab so you can tell your vibe coding projects apart
-- **Expandable groups** show the first 8 tabs with a clickable "+N more"
-- **100% local** your data never leaves your machine
-- **Pure Chrome extension** no server, no Node.js, no npm, no setup beyond loading the extension
-
----
-
-## Manual Setup
-
-**1. Clone the repo**
+如果只想预览界面，可以在 `extension/` 目录启动一个本地静态服务器：
 
 ```bash
-git clone https://github.com/zarazhangrui/tab-out.git
+cd extension
+python3 -m http.server 8088
 ```
 
-**2. Load the Chrome extension**
+然后访问：
 
-1. Open Chrome and go to `chrome://extensions`
-2. Enable **Developer mode** (top-right toggle)
-3. Click **Load unpacked**
-4. Navigate to the `extension/` folder inside the cloned repo and select it
-
-**3. Open a new tab**
-
-You'll see Tab Out.
-
----
-
-## How it works
-
-```
-You open a new tab
-  -> Tab Out shows your open tabs grouped by domain
-  -> Homepages (Gmail, X, etc.) get their own group at the top
-  -> Click any tab title to jump to it
-  -> Close groups you're done with (swoosh + confetti)
-  -> Save tabs for later before closing them
+```text
+http://localhost:8088/preview.html
 ```
 
-Everything runs inside the Chrome extension. No external server, no API calls, no data sent anywhere. Saved tabs are stored in `chrome.storage.local`.
+注意：`preview.html` 只是静态预览页面，不会调用 Chrome 扩展 API。
 
----
+## 项目结构
 
-## Tech stack
+```text
+extension/
+  app.js          # 主页面逻辑
+  background.js   # 点击插件图标打开管理面板
+  index.html      # 插件主页面
+  manifest.json   # Chrome 扩展清单
+  preview.html    # 静态预览页面
+  style.css       # 页面样式
+  icons/          # 插件图标
+```
 
-| What | How |
-|------|-----|
-| Extension | Chrome Manifest V3 |
-| Storage | chrome.storage.local |
-| Sound | Web Audio API (synthesized, no files) |
-| Animations | CSS transitions + JS confetti particles |
+## 技术栈
 
----
+| 内容 | 实现 |
+|------|------|
+| Chrome 扩展 | Manifest V3 |
+| 数据存储 | `chrome.storage.local` |
+| 标签管理 | `chrome.tabs` / `chrome.windows` |
+| UI | HTML / CSS / 原生 JavaScript |
+| 动效 | CSS transitions + Web Audio API |
+
+## 关于来源和修改
+
+TabHub 是基于开源项目 [Tab Out](https://github.com/zarazhangrui/tab-out) 修改和再设计的版本。原项目采用 MIT License 发布。
+
+在此基础上，TabHub 做了面向个人使用场景的调整和扩展，包括但不限于：
+
+- 从“替换新标签页”改为“点击插件图标打开管理面板”。
+- 重做中文界面和现代极简视觉风格。
+- 增加按窗口分组、快捷入口、近期常用、会话保存/恢复。
+- 将归档流程调整为“稍后阅读 -> 近期常用”。
+- 支持从标签列表拖拽网页到“稍后阅读”和“近期常用”。
+- 移除原有“常用主页”分组和页面中的原作者展示标签。
 
 ## License
 
-MIT
+MIT License.
 
----
-
-Built by [Zara](https://x.com/zarazhangrui)
+本仓库保留原项目的 MIT 许可证和版权声明，并在此基础上发布修改后的 TabHub 版本。
